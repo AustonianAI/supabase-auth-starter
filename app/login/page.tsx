@@ -1,38 +1,50 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import Link from 'next/link'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import Link from "next/link";
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [view, setView] = useState('sign-in')
-  const router = useRouter()
-  const supabase = createClientComponentClient()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [view, setView] = useState("sign-in");
+  const router = useRouter();
+  const supabase = createClientComponentClient();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${location.origin}/auth/callback`,
       },
-    })
-    setView('check-email')
-  }
+    });
+    setView("check-email");
+  };
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     await supabase.auth.signInWithPassword({
       email,
       password,
-    })
-    router.push('/')
-    router.refresh()
-  }
+    });
+    router.push("/");
+    router.refresh();
+  };
+
+  const handleSendMagicLink = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${location.origin}/auth/callback`,
+      },
+    });
+    setView("check-email");
+  };
 
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
@@ -53,18 +65,24 @@ export default function Login() {
           className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1"
         >
           <polyline points="15 18 9 12 15 6" />
-        </svg>{' '}
+        </svg>{" "}
         Back
       </Link>
-      {view === 'check-email' ? (
+      {view === "check-email" ? (
         <p className="text-center text-foreground">
           Check <span className="font-bold">{email}</span> to continue signing
-          up
+          in
         </p>
       ) : (
         <form
           className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
-          onSubmit={view === 'sign-in' ? handleSignIn : handleSignUp}
+          onSubmit={
+            view === "sign-in"
+              ? handleSignIn
+              : view === "sign-up"
+              ? handleSignUp
+              : handleSendMagicLink
+          }
         >
           <label className="text-md" htmlFor="email">
             Email
@@ -76,18 +94,23 @@ export default function Login() {
             value={email}
             placeholder="you@example.com"
           />
-          <label className="text-md" htmlFor="password">
-            Password
-          </label>
-          <input
-            className="rounded-md px-4 py-2 bg-inherit border mb-6"
-            type="password"
-            name="password"
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-            placeholder="••••••••"
-          />
-          {view === 'sign-in' && (
+          {view !== "magic-link" && (
+            <>
+              <label className="text-md" htmlFor="password">
+                Password
+              </label>
+              <input
+                className="rounded-md px-4 py-2 bg-inherit border mb-6"
+                type="password"
+                name="password"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+                placeholder="••••••••"
+              />
+            </>
+          )}
+
+          {view === "sign-in" && (
             <>
               <button className="bg-green-700 rounded px-4 py-2 text-white mb-6">
                 Sign In
@@ -96,14 +119,23 @@ export default function Login() {
                 Don't have an account?
                 <button
                   className="ml-1 underline"
-                  onClick={() => setView('sign-up')}
+                  onClick={() => setView("sign-up")}
                 >
                   Sign Up Now
                 </button>
               </p>
+              <p className="text-sm text-center">
+                Or sign in with a
+                <button
+                  className="ml-1 underline"
+                  onClick={() => setView("magic-link")}
+                >
+                  magic link.
+                </button>
+              </p>
             </>
           )}
-          {view === 'sign-up' && (
+          {view === "sign-up" && (
             <>
               <button className="bg-green-700 rounded px-4 py-2 text-white mb-6">
                 Sign Up
@@ -112,7 +144,23 @@ export default function Login() {
                 Already have an account?
                 <button
                   className="ml-1 underline"
-                  onClick={() => setView('sign-in')}
+                  onClick={() => setView("sign-in")}
+                >
+                  Sign In Now
+                </button>
+              </p>
+            </>
+          )}
+          {view === "magic-link" && (
+            <>
+              <button className="bg-green-700 rounded px-4 py-2 text-white mb-6">
+                Send Magic Link
+              </button>
+              <p className="text-sm text-center">
+                Already have an account?
+                <button
+                  className="ml-1 underline"
+                  onClick={() => setView("sign-in")}
                 >
                   Sign In Now
                 </button>
@@ -122,5 +170,5 @@ export default function Login() {
         </form>
       )}
     </div>
-  )
+  );
 }
