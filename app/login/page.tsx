@@ -10,7 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [view, setView] = useState("sign-in");
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClientComponentClient<Database>();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

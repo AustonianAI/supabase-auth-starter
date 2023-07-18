@@ -1,12 +1,12 @@
 import NewTodo from "@/components/NewTodo";
-import Todo from "@/components/Todo";
+import RealTimeTodos from "@/components/RealTimeTodos";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function ServerComponent() {
   // // Create a Supabase client configured to use cookies
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createServerComponentClient<Database>({ cookies });
 
   const {
     data: { session },
@@ -28,11 +28,7 @@ export default async function ServerComponent() {
       <br />
       {todos && (
         <ul className="text-white">
-          {todos.map((todo) => (
-            <li key={todo.id}>
-              <Todo todo={todo} />
-            </li>
-          ))}
+          <RealTimeTodos todos={todos ?? []} />
         </ul>
       )}
     </div>

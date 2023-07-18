@@ -7,7 +7,7 @@ export async function PUT(request: Request) {
 
   console.log("id", id);
 
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = createRouteHandlerClient<Database>({ cookies });
   const { data } = await supabase
     .from("todos")
     .update({ is_complete: true })

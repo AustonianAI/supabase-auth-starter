@@ -6,8 +6,8 @@ export default async function NewTodo() {
   const addTodo = async (formData: FormData) => {
     "use server";
     // get title from input
-    const title = formData.get("title");
-    const supabase = createServerActionClient({ cookies });
+    const title = String(formData.get("title"));
+    const supabase = createServerActionClient<Database>({ cookies });
 
     await supabase.from("todos").insert({ title });
     revalidatePath("/todo");
